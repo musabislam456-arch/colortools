@@ -1,0 +1,6 @@
+{
+  "name": "ColorTools Studio",
+  "description": "Professional design-utility suite featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, and multi-format Color Converter.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
