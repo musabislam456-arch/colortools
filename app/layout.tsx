@@ -5,6 +5,7 @@ import { Footer } from '@/components/Footer';
 import { ToastProvider } from '@/components/Toast';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://colortools.utilix.site'),
   title: 'ColorTools Studio — Creative Agency Grade Color Suite',
   description:
     'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, and multi-format Color Converter.',
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
     description:
       'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, and multi-format Color Converter.',
     type: 'website',
+    url: 'https://colortools.utilix.site',
     siteName: 'ColorTools Studio',
   },
   twitter: {
@@ -46,5 +48,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
