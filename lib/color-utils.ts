@@ -557,3 +557,181 @@ export function hexToOklchCss(hex: string): string {
   const chroma = Math.round(((hsl.s / 100) * 0.32) * 1000) / 1000;
   return `oklch(${lNorm} ${chroma} ${hsl.h})`;
 }
+
+/* ------------------------------------------------------------------ */
+/* Tailwind CSS Shade Scale Generation                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Produces an 11-step (50-950) lightness-mapped color scale from a single
+ * base color, matching the perceptual lightness curve Tailwind's own
+ * default palette follows. The input color is pinned to its closest
+ * matching shade so brand colors stay exact; every other stop is derived
+ * by walking the same hue across a fixed lightness ladder, trimming
+ * saturation near the extremes so near-white and near-black stops don't
+ * turn neon or muddy.
+ */
+
+export const TAILWIND_SHADE_STOPS = [
+  50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
+] as const;
+
+export type TailwindShadeStop = (typeof TAILWIND_SHADE_STOPS)[number];
+
+const TAILWIND_LIGHTNESS_CURVE: Record<TailwindShadeStop, number> = {
+  50: 97,
+  100: 94,
+  200: 86,
+  300: 76,
+  400: 65,
+  500: 55,
+  600: 45,
+  700: 36,
+  800: 27,
+  900: 18,
+  950: 11,
+};
+
+export interface TailwindShade {
+  shade: TailwindShadeStop;
+  hex: string;
+  lightness: number;
+  isPinned: boolean;
+  recommendedTextColor: '#FFFFFF' | '#000000';
+  contrastWithWhite: number;
+  contrastWithBlack: number;
+}
+
+export interface TailwindShadeScale {
+  colorName: string;
+  pinnedShade: TailwindShadeStop;
+  shades: TailwindShade[];
+}
+
+/**
+ * Generate a full 50-950 Tailwind-style shade scale from a single base hex.
+ * The base color is snapped to whichever stop its own lightness is closest
+ * to, so a brand hex always survives untouched somewhere in the scale.
+ */
+export function generateTailwindShades(
+  hex: string,
+  colorName = 'brand'
+): TailwindShadeScale {
+  const rgb = hexToRgb(hex);
+  const baseHsl = rgbToHsl(rgb);
+  const { h, s, l } = baseHsl;
+
+  let pinnedShade: TailwindShadeStop = 500;
+  let minDiff = Infinity;
+  for (const stop of TAILWIND_SHADE_STOPS) {
+    const diff = Math.abs(TAILWIND_LIGHTNESS_CURVE[stop] - l);
+    if (diff < minDiff) {
+      minDiff = diff;
+      pinnedShade = stop;
+    }
+  }
+
+  const shades: TailwindShade[] = TAILWIND_SHADE_STOPS.map((stop) => {
+    const isPinned = stop === pinnedShade;
+    let shadeHex: string;
+    let targetL: number;
+
+    if (isPinned) {
+      shadeHex = rgbToHex(rgb);
+      targetL = l;
+    } else {
+      targetL = TAILWIND_LIGHTNESS_CURVE[stop];
+      // Trim saturation near the extremes so near-white / near-black
+      // stops stay natural instead of turning neon or muddy.
+      const extremeFactor =
+        targetL >= 92 || targetL <= 13
+          ? 0.7
+          : targetL >= 82 || targetL <= 22
+          ? 0.85
+          : 1;
+      const adjustedS = Math.max(6, Math.min(96, s * extremeFactor));
+      shadeHex = rgbToHex(hslToRgb({ h, s: adjustedS, l: targetL }));
+    }
+
+    const whiteContrast = getContrastRatio('#FFFFFF', shadeHex);
+    const blackContrast = getContrastRatio('#000000', shadeHex);
+    const recommendedTextColor: '#FFFFFF' | '#000000' =
+      whiteContrast.ratio >= blackContrast.ratio ? '#FFFFFF' : '#000000';
+
+    return {
+      shade: stop,
+      hex: shadeHex,
+      lightness: Math.round(targetL),
+      isPinned,
+      recommendedTextColor,
+      contrastWithWhite: whiteContrast.ratio,
+      contrastWithBlack: blackContrast.ratio,
+    };
+  });
+
+  return { colorName, pinnedShade, shades };
+}
+
+/** Sanitize a user-provided token name for use in CSS / Tailwind config */
+export function sanitizeTokenName(name: string): string {
+  const clean = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return clean || 'brand';
+}
+
+/** Export as a Tailwind v3 `tailwind.config.js` colors snippet */
+export function tailwindShadesToV3Config(scale: TailwindShadeScale): string {
+  const name = sanitizeTokenName(scale.colorName);
+  const lines = scale.shades
+    .map((s) => `          ${s.shade}: '${s.hex}',`)
+    .join('\n');
+  return `/** tailwind.config.js */
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        ${name}: {
+${lines}
+        },
+      },
+    },
+  },
+};`;
+}
+
+/** Export as a Tailwind v4 `@theme` CSS variables block */
+export function tailwindShadesToV4Theme(scale: TailwindShadeScale): string {
+  const name = sanitizeTokenName(scale.colorName);
+  const lines = scale.shades
+    .map((s) => `  --color-${name}-${s.shade}: ${s.hex};`)
+    .join('\n');
+  return `@theme {
+${lines}
+}`;
+}
+
+/** Export as plain, framework-agnostic CSS custom properties */
+export function tailwindShadesToCssVariables(scale: TailwindShadeScale): string {
+  const name = sanitizeTokenName(scale.colorName);
+  const lines = scale.shades
+    .map((s) => `  --${name}-${s.shade}: ${s.hex};`)
+    .join('\n');
+  return `:root {
+${lines}
+}`;
+}
+
+/** Export as a flat JSON design-token map */
+export function tailwindShadesToJson(scale: TailwindShadeScale): string {
+  const name = sanitizeTokenName(scale.colorName);
+  const obj: Record<string, Record<string, string>> = {
+    [name]: {},
+  };
+  scale.shades.forEach((s) => {
+    obj[name][String(s.shade)] = s.hex;
+  });
+  return JSON.stringify(obj, null, 2);
+}
