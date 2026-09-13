@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     description:
       'Generate a full 50–950 Tailwind color scale from any hex code, with accessible text pairing and one-click export to v3 config, v4 CSS, or JSON.',
     type: 'website',
-    url: 'https://colortools.toolbay.site/tools/tailwind-shades',
+    url: 'https://colortools.utilix.site/tools/tailwind-shades',
   },
   twitter: {
     card: 'summary_large_image',
@@ -57,7 +57,7 @@ export default function TailwindShadesPage() {
     },
     description:
       'Generate a complete Tailwind CSS 50–950 color shade scale from any base hex color, with accessible text pairing and export to Tailwind v3, v4, CSS variables, or JSON.',
-    url: 'https://colortools.toolbay.site/tools/tailwind-shades',
+    url: 'https://colortools.utilix.site/tools/tailwind-shades',
   };
 
   const faqJsonLd = {
