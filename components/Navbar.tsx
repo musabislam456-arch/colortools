@@ -17,7 +17,8 @@ import {
   Sparkles,
   ChevronDown,
   ArrowRight,
-  Grid3x3
+  Grid3x3,
+  Paintbrush
 } from 'lucide-react';
 
 export function Navbar() {
@@ -53,6 +54,13 @@ export function Navbar() {
       description: 'Generate a full 50–950 Tailwind color scale from one hex',
       icon: Grid3x3,
       color: 'from-violet-500 to-fuchsia-500',
+    },
+    {
+      name: 'shadcn/ui Theme',
+      href: '/tools/shadcn-theme-generator',
+      description: 'Generate a full light + dark shadcn/ui theme from one hex',
+      icon: Paintbrush,
+      color: 'from-cyan-500 to-blue-500',
     },
     {
       name: 'Color Converter',
