@@ -16,13 +16,28 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://colortools.utilix.site',
     siteName: 'ColorTools Studio',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'ColorTools Studio — Creative Agency Grade Color Suite',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'ColorTools Studio — Creative Agency Grade Color Suite',
     description:
       'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, and multi-format Color Converter.',
+    images: ['/opengraph-image'],
   },
+  icons: {
+    icon: '/icon',
+    shortcut: '/icon',
+    apple: '/apple-icon',
+  },
+  manifest: '/manifest.webmanifest',
   verification: {
     google: 'I_SaNu0LrbiQSkKmCb7bm8LRBISuViD4KTJh0FHRo2s',
   },
