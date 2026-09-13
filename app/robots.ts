@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://colortools.toolbay.site/sitemap.xml',
+    sitemap: 'https://colortools.utilix.site/sitemap.xml',
   };
 }
