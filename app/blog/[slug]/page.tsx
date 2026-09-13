@@ -158,7 +158,7 @@ export default async function BlogPostPage({ params }: Props) {
           {/* Palette Tokens */}
           <div className="space-y-1.5">
             <span className="text-[10px] font-mono uppercase text-zinc-500 font-semibold block sm:text-right">
-              Palette Palette Tokens
+              Palette Tokens
             </span>
             <div className="flex h-7 rounded-lg overflow-hidden border border-white/10 shadow-sm">
               {post.paletteSample.map((hex, i) => (
