@@ -5,16 +5,16 @@ import { Footer } from '@/components/Footer';
 import { ToastProvider } from '@/components/Toast';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://colortools.utilix.site'),
+  metadataBase: new URL('https://colortools.toolbay.site'),
   title: 'ColorTools Studio — Creative Agency Grade Color Suite',
   description:
-    'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, and multi-format Color Converter.',
+    'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, Tailwind Color Shades Generator, and multi-format Color Converter.',
   openGraph: {
     title: 'ColorTools Studio — Creative Agency Grade Color Suite',
     description:
-      'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, and multi-format Color Converter.',
+      'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, Tailwind Color Shades Generator, and multi-format Color Converter.',
     type: 'website',
-    url: 'https://colortools.utilix.site',
+    url: 'https://colortools.toolbay.site',
     siteName: 'ColorTools Studio',
     images: [
       {
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'ColorTools Studio — Creative Agency Grade Color Suite',
     description:
-      'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, and multi-format Color Converter.',
+      'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, Tailwind Color Shades Generator, and multi-format Color Converter.',
     images: ['/opengraph-image'],
   },
   icons: {
