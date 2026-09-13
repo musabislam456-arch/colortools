@@ -269,4 +269,108 @@ module.exports = {
       </ol>
     `,
   },
+  {
+    slug: 'shadcn-ui-theme-generator-guide',
+    title: 'How to Generate an Accessible shadcn/ui Theme (Light & Dark) From One Color',
+    subtitle: 'Setting 19 CSS variables by hand rarely gets checked for contrast. Here is the actual approach for deriving a full shadcn/ui theme from a single brand hue — and verifying it passes WCAG AA before you ship it.',
+    publishedAt: 'March 25, 2026',
+    readTime: '8 min read',
+    author: {
+      name: 'Priya Raman',
+      role: 'Design Systems Engineer',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    },
+    category: 'Engineering',
+    tags: ['shadcn/ui', 'Design Tokens', 'Dark Mode', 'Accessibility', 'Tailwind CSS'],
+    paletteSample: ['#F8FAFC', '#6366F1', '#0F172A', '#1E293B', '#E2E8F0'],
+    excerpt:
+      'shadcn/ui theming means setting up to 19 CSS variables for light mode and another 19 for dark — by hand, most projects never check that every text-on-surface pair is actually readable. Here is the lightness-curve approach that derives, and verifies, a full theme from one hex.',
+    contentHtml: `
+      <h2>The Problem With Theming shadcn/ui by Hand</h2>
+      <p>shadcn/ui ships as copy-pasted component source, not an installed package — which means its theming is entirely CSS variables you own and edit directly: <code>background</code>, <code>foreground</code>, <code>card</code>, <code>popover</code>, <code>primary</code>, <code>secondary</code>, <code>muted</code>, <code>accent</code>, <code>destructive</code>, <code>border</code>, <code>input</code>, and <code>ring</code> — each with a matching <code>-foreground</code> pair for the text/icon color that sits on top of it. That is already eleven surface tokens and eight foreground pairs for light mode alone, then the whole set again inside a <code>.dark</code> block.</p>
+      <p>In practice, most teams set these by trial and error: pick a <code>primary</code>, eyeball a <code>primary-foreground</code> that "looks readable," copy the pattern for the rest, and move on. Nobody goes back and runs the actual WCAG contrast formula on all sixteen-plus pairs, in both modes, before shipping.</p>
+
+      <h2>Deriving Every Token From One Hue</h2>
+      <p>The reliable way to build a coherent theme is to treat your chosen brand color as a <strong>hue</strong>, not a fixed value, and derive every other token by walking that same hue across different lightness and saturation levels — the same lightness-curve principle used for a Tailwind shade scale, applied across the full shadcn/ui token set instead of eleven flat steps:</p>
+      <ul>
+        <li><strong>Background / foreground:</strong> the hue at extreme lightness (near-98% for background, near-12% for foreground in light mode), with saturation trimmed to single digits so it reads as neutral, not tinted.</li>
+        <li><strong>Card / popover:</strong> pure white in light mode, or a step lighter than the page background in dark mode — enough to visually separate a card from the page behind it.</li>
+        <li><strong>Primary:</strong> your exact input hex, preserved untouched — this is the one token that should not be recalculated.</li>
+        <li><strong>Secondary / muted / accent:</strong> the same hue at high lightness (93–96%) and low saturation in light mode, giving three distinct-but-related neutral surfaces for secondary buttons, muted text backgrounds, and hover accents.</li>
+        <li><strong>Border / input:</strong> a light neutral tint just barely darker than the background, enough to be visible without competing with actual content.</li>
+      </ul>
+
+      <h2>Why Destructive Should Never Follow the Base Hue</h2>
+      <p>There is one deliberate exception to "derive everything from one hue": <code>destructive</code>. If a theme generator naively applies the brand hue to every token including destructive, a purple-branded app ends up with a purple "Delete Account" button — which defeats the entire point of a distinct error color. Delete, remove, and error states need to stay recognizably red across every theme, regardless of brand color, because users pattern-match red to "irreversible or dangerous action" independent of a specific product's branding. The correct approach pins <code>destructive</code> to the red hue family (and its own accessible foreground) no matter what hue drives the rest of the theme.</p>
+
+      <h2>Dark Mode Is Not an Inverted Light Mode</h2>
+      <p>A common shortcut is generating dark mode by simply inverting each light-mode lightness value. This produces two specific failures: primary buttons that were vibrant on a white background often look washed out or oversaturated on a near-black one, and a <code>primary</code> that passed contrast against a light background does not automatically pass against a dark one.</p>
+      <p>Dark mode needs its own lightness pass:</p>
+      <ul>
+        <li><strong>Background</strong> sits low (around 7% lightness) with a faint hue tint rather than pure black, which reduces the harsh vibration of white text on true black.</li>
+        <li><strong>Primary</strong> is deliberately lifted in lightness (typically into the 55–72% range) so it keeps visible saturation and punch against a dark backdrop instead of reading as a dim, muddy version of the light-mode button.</li>
+        <li><strong>Card / secondary / muted / accent</strong> step upward from the background in small lightness increments (roughly 10% → 16% → 19%) so elevation is still perceivable — a card should look like it is sitting on top of the page, not painted flush against it.</li>
+      </ul>
+
+      <h2>Checking Every Pair, Not Trusting the Formula</h2>
+      <p>Deriving colors algorithmically reduces guesswork, but it does not guarantee every resulting pair clears WCAG AA (4.5:1) — some hue and lightness combinations land close enough to the threshold that they need verification, not assumption. The pairs worth checking on every generated theme, in both light and dark mode:</p>
+      <ol>
+        <li>Foreground text on the page background</li>
+        <li>Card foreground on the card surface</li>
+        <li>Popover foreground on the popover surface</li>
+        <li>Primary-foreground on the primary button</li>
+        <li>Secondary-foreground on the secondary button</li>
+        <li>Muted-foreground on the muted surface</li>
+        <li>Accent-foreground on the accent surface</li>
+        <li>Destructive-foreground on the destructive button</li>
+      </ol>
+      <p>Running the actual relative luminance formula — <code>(L1 + 0.05) / (L2 + 0.05)</code> — against all eight pairs, in both modes, and flagging anything under 4.5:1, catches the mid-saturation edge cases a purely visual review misses.</p>
+
+      <h2>From Tokens to Tailwind Config</h2>
+      <p>Once the sixteen CSS variables exist in <code>:root</code> and <code>.dark</code>, shadcn/ui's Tailwind config simply maps each utility color to its variable:</p>
+      <pre><code>/* globals.css */
+:root {
+  --background: #FBFBFE;
+  --foreground: #0E1017;
+  --primary: #6366F1;
+  --primary-foreground: #FFFFFF;
+  /* ...remaining tokens */
+}
+
+.dark {
+  --background: #0B0C10;
+  --foreground: #F5F6FA;
+  --primary: #818CF8;
+  --primary-foreground: #0B0C10;
+  /* ...remaining tokens */
+}
+
+/* tailwind.config.js */
+module.exports = {
+  darkMode: ['class'],
+  theme: {
+    extend: {
+      colors: {
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: 'hsl(var(--primary))',
+        // ...
+      },
+    },
+  },
+};</code></pre>
+      <p>Because every component in shadcn/ui already references these class names (<code>bg-primary</code>, <code>text-muted-foreground</code>, and so on), swapping the sixteen variable values is enough to re-theme an entire app without touching a single component file.</p>
+
+      <h2>Generate Your Theme</h2>
+      <p>Rather than manually picking sixteen-plus coordinated hex values and hoping the contrast works out, the <a href="/tools/shadcn-theme-generator">shadcn/ui Theme Generator</a> on this site runs the derivation and the contrast audit described above: pick one base color, get a complete light + dark theme with every pair pre-checked against WCAG AA, previewed live on real buttons and cards, and exported straight to <code>globals.css</code>, a Tailwind v3 config, or JSON.</p>
+
+      <h2>Common Mistakes to Avoid</h2>
+      <ol>
+        <li><strong>Applying the brand hue to destructive.</strong> Error and delete states should stay red regardless of brand color, or users lose the pattern-match to "dangerous action."</li>
+        <li><strong>Inverting light mode instead of regenerating dark mode.</strong> A flat lightness inversion frequently produces a washed-out primary button and fails contrast that passed fine in light mode.</li>
+        <li><strong>Skipping the contrast check because the derivation is "algorithmic."</strong> A formula-driven palette still needs each foreground/background pair verified — some hue and lightness combinations land close enough to 4.5:1 to fail silently.</li>
+        <li><strong>Only testing primary and background.</strong> Muted and accent surfaces are used constantly for secondary text and hover states — an accessible primary color says nothing about whether muted-foreground on muted actually passes.</li>
+      </ol>
+    `,
+  },
 ];
