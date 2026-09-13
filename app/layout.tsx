@@ -5,7 +5,7 @@ import { Footer } from '@/components/Footer';
 import { ToastProvider } from '@/components/Toast';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://colortools.toolbay.site'),
+  metadataBase: new URL('https://colortools.utilix.site'),
   title: 'ColorTools Studio — Creative Agency Grade Color Suite',
   description:
     'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, Tailwind Color Shades Generator, and multi-format Color Converter.',
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     description:
       'Professional design-utility site featuring an intelligent Color Palette Generator, WCAG AA/AAA Contrast Checker, Dynamic Gradient Studio, Tailwind Color Shades Generator, and multi-format Color Converter.',
     type: 'website',
-    url: 'https://colortools.toolbay.site',
+    url: 'https://colortools.utilix.site',
     siteName: 'ColorTools Studio',
     images: [
       {
