@@ -6,11 +6,49 @@ export const metadata: Metadata = {
   title: 'CSS Gradient Studio — Linear & Radial Color Generators | ColorTools Studio',
   description:
     'Sculpt multi-stop linear and radial gradients with custom angle control, curated agency presets, modern OKLCH color interpolation, and instant CSS / SVG exports.',
+  alternates: {
+    canonical: '/tools/gradient-generator',
+  },
+  openGraph: {
+    title: 'CSS Gradient Studio — Linear & Radial Color Generators',
+    description:
+      'Sculpt multi-stop linear and radial gradients with custom angle control, curated presets, and modern OKLCH color interpolation.',
+    type: 'website',
+    url: 'https://colortools.utilix.site/tools/gradient-generator',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CSS Gradient Studio — Linear & Radial Color Generators',
+    description:
+      'Sculpt multi-stop linear and radial gradients with custom angle control and modern OKLCH color interpolation.',
+  },
 };
 
 export default function GradientGeneratorPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'CSS Gradient Studio',
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Any (Web Browser)',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description:
+      'Build multi-stop linear and radial CSS gradients with custom angle control, curated presets, modern OKLCH color interpolation, and instant CSS or SVG export.',
+    url: 'https://colortools.utilix.site/tools/gradient-generator',
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-10">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Header */}
       <div className="max-w-3xl space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-xs font-mono font-semibold text-pink-300">
