@@ -735,3 +735,225 @@ export function tailwindShadesToJson(scale: TailwindShadeScale): string {
   });
   return JSON.stringify(obj, null, 2);
 }
+
+/* ------------------------------------------------------------------ */
+/* shadcn/ui Theme Generation                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Generates a full shadcn/ui CSS variable theme (light + dark mode) from
+ * a single base hex. The base hue drives every tinted surface; destructive
+ * is deliberately pinned to the red family regardless of the base hue,
+ * matching shadcn/ui convention that error states stay recognizably red.
+ * Every foreground/background pair is contrast-checked against WCAG AA
+ * (4.5:1) so the generated theme is never just visually plausible.
+ */
+
+export const SHADCN_TOKEN_KEYS = [
+  'background',
+  'foreground',
+  'card',
+  'card-foreground',
+  'popover',
+  'popover-foreground',
+  'primary',
+  'primary-foreground',
+  'secondary',
+  'secondary-foreground',
+  'muted',
+  'muted-foreground',
+  'accent',
+  'accent-foreground',
+  'destructive',
+  'destructive-foreground',
+  'border',
+  'input',
+  'ring',
+] as const;
+
+export type ShadcnTokenKey = (typeof SHADCN_TOKEN_KEYS)[number];
+
+export type ShadcnThemeMode = Record<ShadcnTokenKey, string>;
+
+export interface ShadcnTheme {
+  baseHex: string;
+  light: ShadcnThemeMode;
+  dark: ShadcnThemeMode;
+}
+
+export interface ShadcnContrastCheck {
+  pair: string;
+  foreground: string;
+  background: string;
+  ratio: number;
+  passesAA: boolean;
+}
+
+const SHADCN_DESTRUCTIVE_HUE = 0; // red family, independent of base hue
+
+function pickReadableText(bgHex: string): '#FFFFFF' | '#000000' {
+  const white = getContrastRatio('#FFFFFF', bgHex);
+  const black = getContrastRatio('#000000', bgHex);
+  return white.ratio >= black.ratio ? '#FFFFFF' : '#000000';
+}
+
+/**
+ * Generate a full light + dark shadcn/ui theme from a single base hex.
+ */
+export function generateShadcnTheme(baseHex: string): ShadcnTheme {
+  const rgb = hexToRgb(baseHex);
+  const { h, s } = rgbToHsl(rgb);
+  const tintS = Math.max(8, Math.min(40, s * 0.3));
+
+  // --- Light mode ---
+  const lightBackground = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 12), l: 99 }));
+  const lightForeground = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 20), l: 12 }));
+  const lightCard = '#FFFFFF';
+  const lightPrimaryHex = rgbToHex(rgb);
+  const lightSecondary = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 25), l: 95 }));
+  const lightMuted = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 20), l: 96 }));
+  const lightMutedFg = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 12), l: 45 }));
+  const lightAccent = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 30), l: 93 }));
+  const lightBorder = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 20), l: 89 }));
+  const lightDestructive = rgbToHex(hslToRgb({ h: SHADCN_DESTRUCTIVE_HUE, s: 72, l: 50 }));
+
+  const light: ShadcnThemeMode = {
+    background: lightBackground,
+    foreground: lightForeground,
+    card: lightCard,
+    'card-foreground': lightForeground,
+    popover: lightCard,
+    'popover-foreground': lightForeground,
+    primary: lightPrimaryHex,
+    'primary-foreground': pickReadableText(lightPrimaryHex),
+    secondary: lightSecondary,
+    'secondary-foreground': lightForeground,
+    muted: lightMuted,
+    'muted-foreground': lightMutedFg,
+    accent: lightAccent,
+    'accent-foreground': lightForeground,
+    destructive: lightDestructive,
+    'destructive-foreground': pickReadableText(lightDestructive),
+    border: lightBorder,
+    input: lightBorder,
+    ring: lightPrimaryHex,
+  };
+
+  // --- Dark mode ---
+  const darkBackground = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 18), l: 7 }));
+  const darkForeground = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 10), l: 96 }));
+  const darkCard = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 18), l: 10 }));
+  // Primary is lifted in lightness for dark backgrounds so it keeps punch
+  // without blowing out; extreme lightness inputs are re-centered.
+  const { s: baseS } = rgbToHsl(rgb);
+  const darkPrimaryL = Math.max(55, Math.min(72, rgbToHsl(rgb).l + 8));
+  const darkPrimaryHex = rgbToHex(
+    hslToRgb({ h, s: Math.max(45, Math.min(90, baseS)), l: darkPrimaryL })
+  );
+  const darkSecondary = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 20), l: 16 }));
+  const darkMuted = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 16), l: 16 }));
+  const darkMutedFg = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 10), l: 66 }));
+  const darkAccent = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 22), l: 19 }));
+  const darkBorder = rgbToHex(hslToRgb({ h, s: Math.min(tintS, 18), l: 20 }));
+  const darkDestructive = rgbToHex(hslToRgb({ h: SHADCN_DESTRUCTIVE_HUE, s: 63, l: 42 }));
+
+  const dark: ShadcnThemeMode = {
+    background: darkBackground,
+    foreground: darkForeground,
+    card: darkCard,
+    'card-foreground': darkForeground,
+    popover: darkCard,
+    'popover-foreground': darkForeground,
+    primary: darkPrimaryHex,
+    'primary-foreground': pickReadableText(darkPrimaryHex),
+    secondary: darkSecondary,
+    'secondary-foreground': darkForeground,
+    muted: darkMuted,
+    'muted-foreground': darkMutedFg,
+    accent: darkAccent,
+    'accent-foreground': darkForeground,
+    destructive: darkDestructive,
+    'destructive-foreground': pickReadableText(darkDestructive),
+    border: darkBorder,
+    input: darkBorder,
+    ring: darkPrimaryHex,
+  };
+
+  return { baseHex: rgbToHex(rgb), light, dark };
+}
+
+/**
+ * Contrast-check the key foreground/background pairs of a generated mode
+ * against WCAG AA (4.5:1 for text pairs, 3:1 for the border/ring pair).
+ */
+export function checkShadcnModeContrast(mode: ShadcnThemeMode): ShadcnContrastCheck[] {
+  const pairs: [string, ShadcnTokenKey, ShadcnTokenKey, number][] = [
+    ['Text on page', 'foreground', 'background', 4.5],
+    ['Text on card', 'card-foreground', 'card', 4.5],
+    ['Text on popover', 'popover-foreground', 'popover', 4.5],
+    ['Primary button text', 'primary-foreground', 'primary', 4.5],
+    ['Secondary button text', 'secondary-foreground', 'secondary', 4.5],
+    ['Muted text', 'muted-foreground', 'muted', 4.5],
+    ['Accent text', 'accent-foreground', 'accent', 4.5],
+    ['Destructive button text', 'destructive-foreground', 'destructive', 4.5],
+  ];
+
+  return pairs.map(([label, fgKey, bgKey, threshold]) => {
+    const fg = mode[fgKey];
+    const bg = mode[bgKey];
+    const result = getContrastRatio(fg, bg);
+    return {
+      pair: label,
+      foreground: fg,
+      background: bg,
+      ratio: result.ratio,
+      passesAA: result.ratio >= threshold,
+    };
+  });
+}
+
+/** Export a generated theme as a globals.css `:root` / `.dark` block */
+export function shadcnThemeToCss(theme: ShadcnTheme): string {
+  const lightLines = SHADCN_TOKEN_KEYS.map(
+    (key) => `  --${key}: ${theme.light[key]};`
+  ).join('\n');
+  const darkLines = SHADCN_TOKEN_KEYS.map(
+    (key) => `  --${key}: ${theme.dark[key]};`
+  ).join('\n');
+
+  return `:root {
+${lightLines}
+  --radius: 0.625rem;
+}
+
+.dark {
+${darkLines}
+}`;
+}
+
+/** Export a generated theme as a Tailwind v3 `tailwind.config.js` colors block */
+export function shadcnThemeToTailwindV3(): string {
+  const lines = SHADCN_TOKEN_KEYS.map(
+    (key) => `        ${key}: 'hsl(var(--${key}))',`
+  ).join('\n');
+  return `/** tailwind.config.js */
+module.exports = {
+  darkMode: ['class'],
+  theme: {
+    extend: {
+      colors: {
+${lines}
+      },
+    },
+  },
+};`;
+}
+
+/** Export a generated theme as a flat JSON token map (light + dark) */
+export function shadcnThemeToJson(theme: ShadcnTheme): string {
+  return JSON.stringify(
+    { baseHex: theme.baseHex, light: theme.light, dark: theme.dark },
+    null,
+    2
+  );
+}
