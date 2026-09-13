@@ -141,6 +141,24 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/tools/tailwind-shades"
+                  className="hover:text-white transition-colors flex items-center justify-between group"
+                >
+                  <span>Tailwind Shades Generator</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/tools/shadcn-theme-generator"
+                  className="hover:text-white transition-colors flex items-center justify-between group"
+                >
+                  <span>shadcn/ui Theme Generator</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/tools/color-converter"
                   className="hover:text-white transition-colors flex items-center justify-between group"
                 >
@@ -187,6 +205,22 @@ export function Footer() {
                   className="hover:text-white transition-colors line-clamp-1"
                 >
                   Mastering OKLCH & Display P3
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/blog/tailwind-color-shades-generator-guide"
+                  className="hover:text-white transition-colors line-clamp-1"
+                >
+                  Tailwind Color Shades Guide
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/blog/shadcn-ui-theme-generator-guide"
+                  className="hover:text-white transition-colors line-clamp-1"
+                >
+                  shadcn/ui Theme Generator Guide
                 </Link>
               </li>
               <li>
