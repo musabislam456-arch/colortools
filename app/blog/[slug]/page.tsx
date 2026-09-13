@@ -12,12 +12,15 @@ import {
   Palette,
   Eye,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Grid3x3
 } from 'lucide-react';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+const SITE_URL = 'https://colortools.toolbay.site';
 
 export async function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({
@@ -38,13 +41,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${post.title} — ColorTools Studio`,
     description: post.excerpt,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: 'article',
+      url: `${SITE_URL}/blog/${post.slug}`,
       publishedTime: post.publishedAt,
       authors: [post.author.name],
       tags: post.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
     },
   };
 }
@@ -58,9 +70,40 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const otherPosts = BLOG_POSTS.filter((p) => p.slug !== post.slug);
+  const isTailwindShadesPost = post.slug === 'tailwind-color-shades-generator-guide';
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
+    author: {
+      '@type': 'Person',
+      name: post.author.name,
+      jobTitle: post.author.role,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'ColorTools Studio',
+      url: SITE_URL,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${SITE_URL}/blog/${post.slug}`,
+    },
+    keywords: post.tags.join(', '),
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 space-y-12">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+
       {/* Back link */}
       <div>
         <Link
@@ -147,17 +190,29 @@ export default async function BlogPostPage({ params }: Props) {
             Apply these insights in ColorTools Studio
           </h3>
           <p className="text-xs text-zinc-400 max-w-md">
-            Test and formulate your own WCAG compliant tokens and wide-gamut gradients in our client-side workbench.
+            {isTailwindShadesPost
+              ? 'Generate your own accessible 50–950 Tailwind scale from any brand hex, with export-ready code.'
+              : 'Test and formulate your own WCAG compliant tokens and wide-gamut gradients in our client-side workbench.'}
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Link
-            href={`/tools/palette-generator?base=${post.paletteSample[0]?.replace('#', '')}`}
-            className="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-bold text-white transition-colors"
-          >
-            Launch Palette
-          </Link>
+          {isTailwindShadesPost ? (
+            <Link
+              href={`/tools/tailwind-shades?base=${post.paletteSample[2]?.replace('#', '')}`}
+              className="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-bold text-white transition-colors inline-flex items-center gap-1.5"
+            >
+              <Grid3x3 className="h-3.5 w-3.5" />
+              <span>Generate Shades</span>
+            </Link>
+          ) : (
+            <Link
+              href={`/tools/palette-generator?base=${post.paletteSample[0]?.replace('#', '')}`}
+              className="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-bold text-white transition-colors"
+            >
+              Launch Palette
+            </Link>
+          )}
           <Link
             href={`/tools/contrast-checker?fg=${post.paletteSample[4]?.replace('#', '')}&bg=${post.paletteSample[0]?.replace('#', '')}`}
             className="rounded-xl border border-white/[0.12] bg-[#12141A] hover:bg-white/[0.08] px-4 py-2.5 text-xs font-semibold text-zinc-200 transition-colors"
