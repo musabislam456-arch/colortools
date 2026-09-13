@@ -16,7 +16,8 @@ import {
   X,
   Sparkles,
   ChevronDown,
-  ArrowRight
+  ArrowRight,
+  Grid3x3
 } from 'lucide-react';
 
 export function Navbar() {
@@ -45,6 +46,13 @@ export function Navbar() {
       description: 'Multi-stop linear & radial CSS gradient builder',
       icon: Layers,
       color: 'from-pink-500 to-rose-500',
+    },
+    {
+      name: 'Tailwind Shades',
+      href: '/tools/tailwind-shades',
+      description: 'Generate a full 50–950 Tailwind color scale from one hex',
+      icon: Grid3x3,
+      color: 'from-violet-500 to-fuchsia-500',
     },
     {
       name: 'Color Converter',
