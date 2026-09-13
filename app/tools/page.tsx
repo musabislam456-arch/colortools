@@ -10,13 +10,14 @@ import {
   ShieldCheck,
   CheckCircle2,
   Code,
-  Grid3x3
+  Grid3x3,
+  Paintbrush
 } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Design Utilities Hub — ColorTools Studio',
   description:
-    'Explore the full suite of client-side color engineering tools: Palette Generator, WCAG Contrast Checker, Gradient Studio, Tailwind Shades Generator, and multi-format Color Converter.',
+    'Explore the full suite of client-side color engineering tools: Palette Generator, WCAG Contrast Checker, Gradient Studio, Tailwind Shades Generator, shadcn/ui Theme Generator, and multi-format Color Converter.',
 };
 
 export default function ToolsHubPage() {
@@ -82,6 +83,21 @@ export default function ToolsHubPage() {
       ],
     },
     {
+      title: 'shadcn/ui Theme Generator',
+      href: '/tools/shadcn-theme-generator',
+      description:
+        'Turn one brand color into a complete shadcn/ui theme — every CSS variable for light and dark mode, contrast-checked against WCAG AA, previewed live on real components.',
+      icon: Paintbrush,
+      tag: 'Design Tokens',
+      color: 'from-cyan-500 to-blue-600',
+      features: [
+        '19 CSS variables generated for light + dark',
+        'Destructive stays red regardless of base hue',
+        'Live WCAG AA contrast audit per token pair',
+        'Export to globals.css, Tailwind v3, or JSON',
+      ],
+    },
+    {
       title: 'Hex / RGB / HSL / CMYK Converter',
       href: '/tools/color-converter',
       description:
@@ -110,7 +126,7 @@ export default function ToolsHubPage() {
           Studio Design Utilities
         </h1>
         <p className="text-base text-zinc-400 leading-relaxed">
-          Five dedicated workspaces engineered to streamline color selection, mathematical contrast validation, gradient production, Tailwind design tokens, and multi-coordinate conversion.
+          Six dedicated workspaces engineered to streamline color selection, mathematical contrast validation, gradient production, Tailwind and shadcn/ui design tokens, and multi-coordinate conversion.
         </p>
       </div>
 
