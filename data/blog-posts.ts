@@ -179,4 +179,94 @@ background: linear-gradient(in oklch to right, #0055ff, #ffff00);
       <p>Browser support for OKLCH and modern color spaces is now over 95% across all major modern browsers. You can safely adopt modern color definitions with standard hex fallbacks for legacy systems, unlocking richer palettes and mathematically coherent UI states.</p>
     `,
   },
+  {
+    slug: 'tailwind-color-shades-generator-guide',
+    title: 'How to Generate Custom Tailwind CSS Color Shades (50–950) From Any Brand Color',
+    subtitle: 'Stop hand-picking eleven hex codes per color. Learn the lightness-curve algorithm behind consistent Tailwind palettes, and generate an accessible scale in seconds.',
+    publishedAt: 'March 18, 2026',
+    readTime: '9 min read',
+    author: {
+      name: 'Priya Raman',
+      role: 'Design Systems Engineer',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    },
+    category: 'Engineering',
+    tags: ['Tailwind CSS', 'Design Tokens', 'Color Shades', 'Accessibility'],
+    paletteSample: ['#EEF2FF', '#818CF8', '#4F46E5', '#312E81', '#1E1B4B'],
+    excerpt:
+      'Tailwind ships eleven shades for every default color, but your brand color only gives you one. Here is the actual lightness-curve algorithm for building the other ten, plus accessible export-ready code.',
+    contentHtml: `
+      <h2>The One-Color Problem</h2>
+      <p>Every Tailwind project eventually hits the same wall. Your brand guidelines hand you a single hex code — say <code>#4F46E5</code> — but Tailwind's own colors like <code>slate</code> or <code>indigo</code> ship as eleven coordinated shades, from a near-white <code>50</code> to a near-black <code>950</code>. The moment you add a custom brand color to <code>tailwind.config.js</code>, that coordination disappears. You get exactly one shade and have to invent the other ten yourself.</p>
+      <p>Most developers solve this by eyeballing it in a color picker, nudging the lightness slider until a hover state "looks about right." The result is a brand color scale that does not visually match Tailwind's built-in palettes at all — steps that jump unevenly, a 700 that is barely darker than 600, or a 900 so dark it looks like a different hue entirely.</p>
+
+      <h2>How Tailwind's Own Palette Is Actually Built</h2>
+      <p>Tailwind's default colors are not randomly chosen — they follow a consistent lightness ladder. Each numbered stop maps to a target lightness percentage, and the ladder gets noticeably steeper at the light and dark ends, because human eyes are far more sensitive to lightness differences near white and black than in the midtones:</p>
+      <pre><code>50   → ~97% lightness  (near-white surface)
+100  → ~94%
+200  → ~86%
+300  → ~76%
+400  → ~65%
+500  → ~55%  (typical "base" tone)
+600  → ~45%
+700  → ~36%
+800  → ~27%
+900  → ~18%
+950  → ~11%  (near-black text/background)</code></pre>
+      <p>To reconstruct this for a custom brand color, you convert the hex to HSL, keep the <strong>hue</strong> constant across every stop, and walk the <strong>lightness</strong> value down this ladder. The tricky part — the part most quick scripts skip — is what happens to <strong>saturation</strong> near the extremes.</p>
+
+      <h2>Why Saturation Has to Shrink Near White and Black</h2>
+      <p>If you hold saturation constant while dropping lightness toward 10%, highly saturated hues turn muddy and lose their identity — a vivid purple at 90% saturation and 11% lightness reads as nearly black with no purple left in it. Push saturation toward 95%+ at 97% lightness and you get a neon, slightly artificial pastel instead of a soft, usable near-white surface.</p>
+      <p>The fix is to trim saturation by roughly 15–30% only at the two extreme ends of the ladder (below ~13% or above ~92% lightness), while leaving the midtones — where your color actually needs to stay recognizable, like the 400–600 range used for buttons and links — untouched. This is the exact approach used by the shade generator on this page: saturation is reduced only where the human eye would otherwise perceive muddiness or artificial neon brightness, not applied uniformly across all eleven stops.</p>
+
+      <h2>Pinning Your Exact Brand Color</h2>
+      <p>One more detail matters: your original hex code should never be silently altered. A generator that recalculates all eleven stops from scratch, including the one closest to your input, will drift your brand color by a few percentage points — often just enough that a pixel-perfect brand guideline stops matching in production.</p>
+      <p>The correct approach is to find which of the eleven lightness stops your color's own lightness is closest to, and <strong>pin your exact hex to that stop untouched</strong>. Every other shade is then derived outward from that anchor. So if your brand hex has 56% lightness, it gets pinned exactly at <code>500</code>, and the generator builds <code>50</code> through <code>950</code> around it — never touching your original value.</p>
+
+      <h2>Accessible Text Pairing, Not an Afterthought</h2>
+      <p>A shade scale is only useful if you know which shades are safe to put text on. The common shorthand — "light shades get dark text, dark shades get light text" — is a reasonable starting point, but the actual WCAG contrast ratio should be checked per shade, not assumed:</p>
+      <ul>
+        <li>Shades <strong>50–300</strong> almost always pass 4.5:1 (WCAG AA) with near-black text.</li>
+        <li>Shades <strong>600–950</strong> almost always pass 4.5:1 with white text.</li>
+        <li>Shades <strong>400–500</strong> are the danger zone — depending on the hue, they may fail AA with both white and black text at normal sizes, and are safer reserved for large text, icons, or borders rather than body copy.</li>
+      </ul>
+      <p>Calculating the actual relative luminance formula (<code>(L1 + 0.05) / (L2 + 0.05)</code>) for every shade against both white and black, and surfacing whichever wins, removes the guesswork entirely instead of relying on a rule of thumb.</p>
+
+      <h2>Tailwind v3 vs v4: Where the Color Actually Goes</h2>
+      <p>The output format changed meaningfully between major versions:</p>
+      <pre><code>/* Tailwind v3 — tailwind.config.js */
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          500: '#4F46E5',
+          600: '#4338CA',
+          // ...
+        },
+      },
+    },
+  },
+};
+
+/* Tailwind v4 — CSS-first @theme */
+@theme {
+  --color-brand-500: #4F46E5;
+  --color-brand-600: #4338CA;
+  /* ... */
+}</code></pre>
+      <p>v4's CSS-first configuration means your custom shade scale lives directly in a stylesheet as CSS variables, which also makes it trivial to override per-theme (for example, swapping values inside a <code>[data-theme="dark"]</code> block) without touching JavaScript config at all.</p>
+
+      <h2>Generate Your Scale</h2>
+      <p>Rather than hand-rolling this HSL math in a spreadsheet, the <a href="/tools/tailwind-shades">Tailwind Color Shades Generator</a> on this site runs the exact lightness-curve algorithm described above: paste in your brand hex, get all eleven shades with accessible text labels already resolved, and copy straight into a v3 config, a v4 <code>@theme</code> block, plain CSS variables, or JSON.</p>
+
+      <h2>Common Mistakes to Avoid</h2>
+      <ol>
+        <li><strong>Linear HSL steps with no saturation curve.</strong> Evenly spacing lightness from 0–100% without trimming saturation at the extremes produces muddy dark shades and neon-pastel light shades.</li>
+        <li><strong>Recalculating the base color.</strong> If your exact brand hex isn't preserved at one exact stop, your "brand-500" class will render a slightly different color than your actual logo or brand guideline.</li>
+        <li><strong>Assuming text pairing instead of checking it.</strong> Mid-range shades (400–500) are the most likely to silently fail WCAG AA — verify, don't assume.</li>
+        <li><strong>Hardcoding hex values instead of CSS variables.</strong> In Tailwind v4 especially, exporting to <code>@theme</code> CSS variables (rather than pasted hex strings) makes dark-mode and per-brand theme overrides far easier to maintain later.</li>
+      </ol>
+    `,
+  },
 ];
