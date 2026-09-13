@@ -20,7 +20,7 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-const SITE_URL = 'https://colortools.toolbay.site';
+const SITE_URL = 'https://colortools.utilix.site';
 
 export async function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({
