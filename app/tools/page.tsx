@@ -9,13 +9,14 @@ import {
   Sparkles,
   ShieldCheck,
   CheckCircle2,
-  Code
+  Code,
+  Grid3x3
 } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Design Utilities Hub — ColorTools Studio',
   description:
-    'Explore the full suite of client-side color engineering tools: Palette Generator, WCAG Contrast Checker, Gradient Studio, and multi-format Color Converter.',
+    'Explore the full suite of client-side color engineering tools: Palette Generator, WCAG Contrast Checker, Gradient Studio, Tailwind Shades Generator, and multi-format Color Converter.',
 };
 
 export default function ToolsHubPage() {
@@ -66,6 +67,21 @@ export default function ToolsHubPage() {
       ],
     },
     {
+      title: 'Tailwind Color Shades Generator',
+      href: '/tools/tailwind-shades',
+      description:
+        'Turn a single brand hex into a full 50–950 Tailwind color scale. Your exact color is pinned to its nearest shade, and every swatch shows which text color passes WCAG contrast.',
+      icon: Grid3x3,
+      tag: 'Design Tokens',
+      color: 'from-violet-500 to-fuchsia-600',
+      features: [
+        'Perceptual 50–950 lightness-curve algorithm',
+        'Exact base color pinned, never approximated',
+        'Accessible text pairing shown per shade',
+        'Export to Tailwind v3, v4, CSS vars, or JSON',
+      ],
+    },
+    {
       title: 'Hex / RGB / HSL / CMYK Converter',
       href: '/tools/color-converter',
       description:
@@ -94,7 +110,7 @@ export default function ToolsHubPage() {
           Studio Design Utilities
         </h1>
         <p className="text-base text-zinc-400 leading-relaxed">
-          Four dedicated workspaces engineered to streamline color selection, mathematical contrast validation, gradient production, and multi-coordinate conversion.
+          Five dedicated workspaces engineered to streamline color selection, mathematical contrast validation, gradient production, Tailwind design tokens, and multi-coordinate conversion.
         </p>
       </div>
 
